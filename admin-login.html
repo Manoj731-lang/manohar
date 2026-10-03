@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#140b07">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Sign In | It's Waffle</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='14' fill='%23f0a12b'/%3E%3Cpath d='M14 13h20a3 3 0 0 1 3 3v16a3 3 0 0 1-3 3H14a3 3 0 0 1-3-3V16a3 3 0 0 1 3-3Zm0 7h20M14 28h20M21 13v22m7-22v22' fill='none' stroke='%23140b07' stroke-width='2.5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body class="admin-login-page">
+  <a class="skip-link" href="#admin-login-form">Skip to sign in</a>
+  <main class="admin-login-shell">
+    <a class="brand admin-login-brand" href="index.html#home" aria-label="It's Waffle storefront"><svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="7" width="34" height="34" rx="11" fill="currentColor"/><path d="M17 15v18m7-18v18m7-18v18M14 21h20m-20 7h20" fill="none" stroke="#140b07" stroke-linecap="round" stroke-width="2.4"/></svg><span>it's <b>waffle</b><small>STORE ADMIN</small></span></a>
+    <section class="admin-login-panel" aria-labelledby="login-title">
+      <p class="eyebrow">Staff access</p>
+      <h1 id="login-title">Welcome back.</h1>
+      <p class="admin-login-intro">Sign in to manage It's Waffle content.</p>
+      <form id="admin-login-form" novalidate>
+        <label class="admin-field" for="admin-username">Username<input id="admin-username" name="username" type="text" autocomplete="username" required></label>
+        <label class="admin-field" for="admin-password">Password<input id="admin-password" name="password" type="password" autocomplete="current-password" required aria-describedby="login-feedback"></label>
+        <p class="admin-login-feedback" id="login-feedback" role="alert" aria-live="polite"></p>
+        <button class="button button-primary admin-login-submit" type="submit">Sign in <span aria-hidden="true">→</span></button>
+        <button class="text-link admin-forgot" id="forgot-password-trigger" type="button">Forgot password?</button>
+      </form>
+      <section class="admin-reset-flow" id="admin-reset-flow" aria-labelledby="reset-title" hidden>
+        <h2 id="reset-title">Reset admin password</h2>
+        <p class="admin-reset-intro">Request a one-time code for the local demo account.</p>
+        <form id="admin-otp-request-form" novalidate>
+          <label class="admin-field" for="reset-username">Username<input id="reset-username" name="username" type="text" autocomplete="username" required></label>
+          <button class="button button-primary admin-login-submit" type="submit">Generate OTP <span aria-hidden="true">→</span></button>
+          <p class="admin-login-feedback" id="otp-request-feedback" role="status" aria-live="polite"></p>
+        </form>
+        <p class="admin-demo-otp" id="otp-demo-code" role="status" hidden><strong>Demo OTP</strong> <code id="otp-demo-value"></code><span>Shown here only; it is not sent by SMS or email.</span></p>
+        <form id="admin-password-reset-form" novalidate hidden>
+          <label class="admin-field" for="reset-otp">One-time code<input id="reset-otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
+          <label class="admin-field" for="new-admin-password">New password<input id="new-admin-password" name="newPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+          <label class="admin-field" for="confirm-admin-password">Confirm new password<input id="confirm-admin-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+          <p class="admin-login-feedback" id="password-reset-feedback" role="alert" aria-live="polite"></p>
+          <button class="button button-primary admin-login-submit" type="submit">Save new password <span aria-hidden="true">→</span></button>
+        </form>
+        <button class="text-link admin-back-link" id="back-to-login" type="button">Back to sign in</button>
+      </section>
+      
+      <a class="text-link admin-back-link" href="index.html#home">Back to storefront <span aria-hidden="true">↗</span></a>
+    </section>
+    <p class="admin-login-disclaimer">Demo access only. This static login is not secure for real staff accounts.</p>
+  </main>
+</body>
+</html>
