@@ -347,6 +347,133 @@ h1, h2, .contact-form h3 { color: var(--chocolate); font-family: var(--font-disp
 .checkout-button { width: 100%; }
 .checkout-note { display: block; margin-top: 8px; color: var(--muted); font-size: 8px; text-align: center; }
 
+/* Cart Drawer Multi-view Layout */
+.cart-drawer { width: min(480px, 100%); }
+.cart-view { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.cart-view[hidden] { display: none !important; }
+
+/* Delivery Available in Hyderabad Badge in Bag View */
+.checkout-delivery-badge { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; padding: 10px 14px; border: 1px dashed var(--gold); border-radius: 8px; background: color-mix(in srgb, var(--gold) 10%, transparent); color: var(--chocolate); font-size: 12.5px; font-weight: 500; text-align: center; }
+.checkout-delivery-badge strong { color: var(--gold-deep); font-weight: 700; }
+.delivery-badge-icon { font-size: 16px; line-height: 1; }
+
+/* Checkout Drawer Header & Back Button */
+.checkout-drawer-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.checkout-back-button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-warm); color: var(--chocolate); cursor: pointer; font-size: 13px; font-weight: 600; transition: background .2s, border-color .2s, transform .15s; }
+.checkout-back-button:hover { background: var(--gold); color: #241308; border-color: var(--gold); }
+
+/* Checkout Scroll Area */
+.checkout-scroll-area { flex: 1; overflow-y: auto; padding-top: 16px; padding-right: 4px; }
+.checkout-scroll-area::-webkit-scrollbar { width: 6px; }
+.checkout-scroll-area::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.checkout-heading-box { margin-bottom: 16px; }
+.checkout-heading-box h2 { margin: 0; font-size: 26px; color: var(--chocolate); }
+.checkout-heading-box .eyebrow { margin-bottom: 4px; }
+
+/* Hyderabad Exclusive Notice Banner */
+.hyderabad-notice-banner { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px; padding: 14px 16px; border: 1px solid rgba(240, 161, 43, 0.4); border-radius: 10px; background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 16%, var(--surface-warm)), var(--surface-warm)); box-shadow: 0 4px 16px rgb(0 0 0 / 15%); }
+.hyderabad-notice-icon { font-size: 26px; line-height: 1.2; flex: 0 0 auto; }
+.hyderabad-notice-content strong { display: block; color: var(--gold-deep); font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.hyderabad-notice-content p { margin: 0; color: var(--ink); font-size: 12.5px; line-height: 1.5; opacity: 0.9; }
+
+/* Order Fulfillment Toggle */
+.order-type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.order-type-option { position: relative; display: flex; flex-direction: column; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-warm); cursor: pointer; transition: border-color .2s, background .2s, transform .15s; }
+.order-type-option input { position: absolute; opacity: 0; pointer-events: none; }
+.order-type-option:hover { border-color: var(--gold-deep); }
+.order-type-option.is-active { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 15%, var(--surface-warm)); box-shadow: 0 0 0 1.5px var(--gold); }
+.order-type-label { font-size: 13.5px; font-weight: 700; color: var(--chocolate); }
+.order-type-option small { margin-top: 3px; color: var(--muted); font-size: 11.5px; }
+
+/* Checkout Form Sections */
+.checkout-form-section { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.form-section-title { margin: 0 0 12px; color: var(--gold-deep); font-size: 12px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase; }
+.required-star { color: #f87171; margin-left: 2px; }
+.checkout-order-form .form-field { margin-bottom: 12px; }
+.checkout-order-form .form-field label { display: block; margin-bottom: 6px; color: var(--chocolate); font-size: 13px; font-weight: 600; }
+.checkout-order-form input, .checkout-order-form select, .checkout-order-form textarea { display: block; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font-size: 13.5px; transition: border-color .2s, box-shadow .2s; }
+.checkout-order-form input:focus, .checkout-order-form select:focus, .checkout-order-form textarea:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 30%, transparent); }
+.checkout-order-form select { cursor: pointer; }
+.checkout-order-form select option { background: var(--surface); color: var(--ink); }
+.checkout-order-form textarea { min-height: 72px; resize: vertical; }
+.checkout-form-row { display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; }
+
+/* Field Error */
+.field-error { display: block; min-height: 16px; margin-top: 4px; color: #ff8b7b; font-size: 11px; font-weight: 500; }
+[aria-invalid='true'] { border-color: #ff6b6b !important; }
+
+/* Phone Prefix Wrap */
+.phone-input-wrap { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); overflow: hidden; }
+.phone-input-wrap:focus-within { border-color: var(--gold); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 30%, transparent); }
+.phone-prefix { padding-inline: 12px; color: var(--chocolate); font-size: 13.5px; font-weight: 700; background: var(--surface-warm); border-right: 1px solid var(--line); line-height: 42px; user-select: none; }
+.phone-input-wrap input { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; height: 42px; }
+
+/* Locked City Field */
+.locked-city-field { position: relative; display: flex; align-items: center; }
+.locked-city-field input { padding-right: 110px; background: var(--surface-warm) !important; color: var(--muted); font-weight: 600; cursor: not-allowed; }
+.locked-city-badge { position: absolute; right: 8px; padding: 4px 8px; border-radius: 4px; background: var(--gold); color: #241308; font-size: 11px; font-weight: 700; pointer-events: none; }
+
+/* Pickup Info Box */
+.pickup-card { display: flex; align-items: flex-start; gap: 14px; padding: 14px; border: 1px dashed var(--gold); border-radius: 8px; background: color-mix(in srgb, var(--gold) 10%, var(--surface-warm)); }
+.pickup-card-icon { font-size: 26px; line-height: 1; flex: 0 0 auto; }
+.pickup-card strong { display: block; color: var(--chocolate); font-size: 14px; }
+.pickup-card p { margin: 3px 0 5px; color: var(--ink); font-size: 13px; line-height: 1.4; }
+.pickup-card small { color: var(--gold-deep); font-size: 11.5px; font-weight: 600; }
+
+/* Payment Methods */
+.payment-methods { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.payment-option { position: relative; display: flex; flex-direction: column; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-warm); cursor: pointer; transition: border-color .2s, background .2s; }
+.payment-option input { position: absolute; opacity: 0; pointer-events: none; }
+.payment-option:hover { border-color: var(--gold-deep); }
+.payment-option.is-active { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 14%, var(--surface-warm)); box-shadow: 0 0 0 1.5px var(--gold); }
+.payment-title { font-size: 13.5px; font-weight: 700; color: var(--chocolate); }
+.payment-option small { margin-top: 3px; color: var(--muted); font-size: 12px; }
+
+/* Mini Summary Box */
+.checkout-mini-summary { margin-bottom: 20px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-warm); }
+.mini-summary-header { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 700; color: var(--chocolate); text-transform: uppercase; letter-spacing: 0.6px; }
+.mini-summary-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; max-height: 150px; overflow-y: auto; }
+.mini-summary-item { display: flex; justify-content: space-between; color: var(--ink); font-size: 13px; }
+.mini-summary-item span:first-child { color: var(--muted); }
+.mini-summary-breakdown { padding-top: 10px; border-top: 1px dashed var(--line); display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.summary-line { display: flex; justify-content: space-between; color: var(--muted); }
+.free-delivery-tag { color: #52a36b; font-weight: 700; background: color-mix(in srgb, #52a36b 18%, transparent); padding: 2px 7px; border-radius: 4px; font-size: 11.5px; }
+.summary-line.summary-total { margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--line); color: var(--ink); font-size: 14.5px; font-weight: 700; }
+.summary-line.summary-total strong { color: var(--gold-deep); font-size: 16px; }
+
+/* Actions */
+.checkout-actions { display: flex; flex-direction: column; gap: 10px; padding-bottom: 14px; }
+.checkout-confirm-btn { width: 100%; min-height: 48px; font-size: 14px; font-weight: 700; border-radius: 8px; }
+.button-whatsapp { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 46px; border: 0; border-radius: 8px; background: #25D366; color: #ffffff !important; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; transition: background .2s, transform .2s, box-shadow .2s; }
+.button-whatsapp svg { flex: 0 0 auto; fill: currentColor; }
+.button-whatsapp:hover { background: #20ba59; transform: translateY(-2px); box-shadow: 0 6px 18px rgb(37 211 102 / 30%); color: #ffffff !important; }
+
+/* Success Confirmation Screen */
+.checkout-success-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px 14px 14px; }
+.success-animation-circle { width: 64px; height: 64px; border-radius: 50%; background: color-mix(in srgb, #52a36b 20%, transparent); border: 2px solid #52a36b; color: #52a36b; display: grid; place-items: center; font-size: 30px; font-weight: 700; margin-bottom: 14px; animation: bounce-in .5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+@keyframes bounce-in { 0% { transform: scale(0.3); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+.checkout-success-body h3 { margin: 0 0 8px; font-size: 24px; color: var(--chocolate); }
+.success-lead { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.6; max-width: 320px; }
+.success-card { width: 100%; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-warm); text-align: left; margin-bottom: 22px; display: flex; flex-direction: column; gap: 10px; }
+.success-card-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; font-size: 13px; }
+.success-card-row span:first-child { color: var(--muted); flex: 0 0 auto; }
+.success-card-row strong, .success-card-row .success-multiline { text-align: right; color: var(--ink); }
+.success-card-row.success-total-row { padding-top: 10px; border-top: 1px solid var(--line); font-size: 14.5px; }
+.success-card-row.success-total-row strong { color: var(--gold-deep); font-size: 16px; }
+.success-actions { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+.success-continue-btn { width: 100%; min-height: 46px; font-size: 14px; font-weight: 700; border-radius: 8px; }
+
+/* Admin Orders Management */
+.admin-order-card { padding: 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
+.admin-order-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.admin-order-id { font-weight: 700; color: var(--gold-deep); font-size: 12px; }
+.admin-order-time { color: var(--muted); font-size: 11px; }
+.admin-order-status { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: color-mix(in srgb, var(--gold) 20%, transparent); color: var(--gold-deep); }
+.admin-order-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; }
+.admin-order-items { padding: 8px 0; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
+.admin-order-footer { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.admin-order-total { font-weight: 700; color: var(--chocolate); font-size: 14px; }
+
 .back-to-top { position: fixed; z-index: 25; right: 22px; bottom: 22px; display: grid; width: 42px; height: 42px; place-items: center; border: 0; border-radius: 50%; background: var(--chocolate); color: #fff8ec; box-shadow: var(--shadow-card); cursor: pointer; opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity .2s, transform .2s; }
 .back-to-top.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
 .back-to-top svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
@@ -525,7 +652,7 @@ h1, h2, .contact-form h3 { color: var(--chocolate); font-family: var(--font-disp
 .admin-record { display: grid; gap: 3px; width: 100%; padding: 10px 11px; border: 1px solid var(--line); border-radius: 2px; background: transparent; color: var(--ink); cursor: pointer; text-align: left; }
 .admin-record:hover, .admin-record.is-selected { border-color: var(--gold-deep); background: var(--surface-warm); }
 .admin-record strong { overflow: hidden; color: var(--chocolate); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.admin-record span { display: -webkit-box; overflow: hidden; color: var(--muted); font-size: 8px; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.admin-record span { display: -webkit-box; overflow: hidden; color: var(--muted); font-size: 8px; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .admin-empty { color: var(--muted); font-size: 10px; }
 .admin-editor { padding: 20px; }
 .admin-editor-heading { margin-bottom: 17px; }

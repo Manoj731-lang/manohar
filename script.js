@@ -4,8 +4,9 @@ const DEFAULT_SHOP = {
   city: 'Hyderabad',
   address: 'Jubilee Hills, Hyderabad, Telangana',
   area: 'Jubilee Hills, Hyderabad',
-  phone: '+91 40 1234 5678',
-  phoneLink: '+914012345678',
+  phone: '+91 70325 54637',
+  phoneLink: '+917032554637',
+  whatsapp: '917032554637',
   email: 'hello@itswaffle.example',
   timezone: 'Asia/Kolkata',
   opensAt: 10,
@@ -58,7 +59,9 @@ const STORAGE_KEYS = {
   shop: 'its-waffle-shop-v1',
   menu: 'its-waffle-menu-v1',
   features: 'its-waffle-features-v1',
-  reviews: 'its-waffle-reviews-v1'
+  reviews: 'its-waffle-reviews-v1',
+  orders: 'its-waffle-orders-v1',
+  customer: 'its-waffle-customer-v1'
 };
 const ADMIN_SESSION_KEY = 'its-waffle-admin-auth-v1';
 const ADMIN_PASSWORD_KEY = 'its-waffle-admin-password-v1';
@@ -66,6 +69,11 @@ const ADMIN_RESET_OTP_KEY = 'its-waffle-admin-reset-otp-v1';
 const ADMIN_RESET_EXPIRY_KEY = 'its-waffle-admin-reset-expiry-v1';
 const ADMIN_CREDENTIALS = { username: 'admin', password: 'waffle-admin' };
 let SHOP = { ...DEFAULT_SHOP, ...readStorage(STORAGE_KEYS.shop, {}) };
+if (!SHOP.whatsapp || SHOP.phoneLink === '+914012345678' || SHOP.phone === '+91 40 1234 5678') {
+  SHOP.phone = '+91 70325 54637';
+  SHOP.phoneLink = '+917032554637';
+  SHOP.whatsapp = '917032554637';
+}
 let MENU = readStorage(STORAGE_KEYS.menu, DEFAULT_MENU);
 let FEATURES = readStorage(STORAGE_KEYS.features, DEFAULT_FEATURES);
 let REVIEWS = readStorage(STORAGE_KEYS.reviews, DEFAULT_REVIEWS);
@@ -257,7 +265,6 @@ function renderCart() {
   document.querySelector('#cart-subtotal').textContent = currency.format(total);
   empty.classList.toggle('is-visible', count === 0);
   summary.classList.toggle('is-empty', count === 0);
-
   cartItems.innerHTML = items.map(({ product, quantity }) => `
     <article class="cart-line" data-cart-line="${product.id}">
       <img src="${escapeHTML(menuImageSource(product.image, 180, 70))}" alt="" loading="lazy" width="67" height="67">
@@ -269,6 +276,365 @@ function renderCart() {
       <div class="cart-line-end"><span class="cart-line-total">${currency.format(product.price * quantity)}</span><button class="cart-remove" type="button" data-remove-item="${product.id}" aria-label="Remove ${product.name} from your bag">Remove</button></div>
     </article>`).join('');
   saveStorage(STORAGE_KEYS.cart, cart);
+  updateCheckoutSummary();
+}
+
+function showCartView(viewName) {
+  const bagView = document.querySelector('#cart-view-bag');
+  const checkoutView = document.querySelector('#cart-view-checkout');
+  const successView = document.querySelector('#cart-view-success');
+  if (!bagView || !checkoutView) return;
+
+  bagView.hidden = viewName !== 'bag';
+  checkoutView.hidden = viewName !== 'checkout';
+  if (successView) successView.hidden = viewName !== 'success';
+
+  if (viewName === 'bag') {
+    document.querySelector('#cart-items')?.scrollTo({ top: 0, behavior: 'instant' });
+  } else if (viewName === 'checkout') {
+    document.querySelector('.checkout-scroll-area')?.scrollTo({ top: 0, behavior: 'instant' });
+  } else if (viewName === 'success') {
+    document.querySelector('.checkout-success-body')?.scrollTo({ top: 0, behavior: 'instant' });
+  }
+}
+
+function updateCheckoutSummary() {
+  const items = getCartItems();
+  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
+  const itemCountEl = document.querySelector('#checkout-item-count');
+  const summaryList = document.querySelector('#checkout-summary-list');
+  const subtotalEl = document.querySelector('#checkout-subtotal');
+  const totalEl = document.querySelector('#checkout-total');
+  const btnTotalEl = document.querySelector('#btn-total-price');
+
+  if (itemCountEl) itemCountEl.textContent = `${count} ${count === 1 ? 'item' : 'items'}`;
+  if (subtotalEl) subtotalEl.textContent = currency.format(total);
+  if (totalEl) totalEl.textContent = currency.format(total);
+  if (btnTotalEl) btnTotalEl.textContent = currency.format(total);
+
+  if (summaryList) {
+    if (items.length === 0) {
+      summaryList.innerHTML = '<p class="mini-summary-empty">No waffles in your bag yet.</p>';
+    } else {
+      summaryList.innerHTML = items.map(({ product, quantity }) => `
+        <div class="mini-summary-item">
+          <span>${quantity} × ${escapeHTML(product.name)}</span>
+          <strong>${currency.format(product.price * quantity)}</strong>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function openCheckoutForm() {
+  const items = getCartItems();
+  if (items.length === 0) return;
+  showCartView('checkout');
+  updateCheckoutSummary();
+
+  // Populate saved customer info if available
+  const savedCustomer = readStorage(STORAGE_KEYS.customer, null);
+  if (savedCustomer) {
+    const nameInput = document.querySelector('#order-name');
+    const phoneInput = document.querySelector('#order-phone');
+    const addressInput = document.querySelector('#order-address');
+    const localitySelect = document.querySelector('#order-locality');
+    const pincodeInput = document.querySelector('#order-pincode');
+    if (nameInput && savedCustomer.name) nameInput.value = savedCustomer.name;
+    if (phoneInput && savedCustomer.phone) phoneInput.value = savedCustomer.phone;
+    if (addressInput && savedCustomer.address) addressInput.value = savedCustomer.address;
+    if (localitySelect && savedCustomer.locality) {
+      localitySelect.value = savedCustomer.locality;
+      if (localitySelect.value !== savedCustomer.locality) {
+        localitySelect.value = 'Other';
+        const otherLoc = document.querySelector('#order-other-locality');
+        const otherWrap = document.querySelector('#other-locality-wrap');
+        if (otherLoc && otherWrap) {
+          otherLoc.value = savedCustomer.locality;
+          otherWrap.hidden = false;
+        }
+      }
+    }
+    if (pincodeInput && savedCustomer.pincode) pincodeInput.value = savedCustomer.pincode;
+  }
+
+  window.setTimeout(() => {
+    document.querySelector('#order-name')?.focus();
+  }, 100);
+}
+
+function processOrder({ viaWhatsApp = false } = {}) {
+  const items = getCartItems();
+  if (items.length === 0) return;
+  const form = document.querySelector('#checkout-order-form');
+  if (!form) return;
+
+  const nameInput = document.querySelector('#order-name');
+  const phoneInput = document.querySelector('#order-phone');
+  const addressInput = document.querySelector('#order-address');
+  const localitySelect = document.querySelector('#order-locality');
+  const otherLocalityInput = document.querySelector('#order-other-locality');
+  const pincodeInput = document.querySelector('#order-pincode');
+  const instructionsInput = document.querySelector('#order-instructions');
+  const orderType = form.querySelector('input[name="orderType"]:checked')?.value || 'delivery';
+  const paymentMethod = form.querySelector('input[name="paymentMethod"]:checked')?.value || 'UPI on Delivery';
+
+  // Clear previous errors
+  form.querySelectorAll('.field-error').forEach((el) => { el.textContent = ''; });
+  form.querySelectorAll('[aria-invalid]').forEach((el) => { el.removeAttribute('aria-invalid'); });
+
+  let hasError = false;
+  let firstInvalid = null;
+
+  const setError = (input, errorElId, msg) => {
+    hasError = true;
+    if (input) input.setAttribute('aria-invalid', 'true');
+    const errEl = document.querySelector(errorElId);
+    if (errEl) errEl.textContent = msg;
+    if (!firstInvalid && input) firstInvalid = input;
+  };
+
+  const name = nameInput ? nameInput.value.trim() : '';
+  if (!name) {
+    setError(nameInput, '#order-name-error', 'Please enter your full name');
+  }
+
+  const phone = phoneInput ? phoneInput.value.trim().replace(/\D/g, '') : '';
+  if (!phone) {
+    setError(phoneInput, '#order-phone-error', 'Please enter your 10-digit mobile number');
+  } else if (phone.length !== 10) {
+    setError(phoneInput, '#order-phone-error', `Mobile number must be exactly 10 digits (${phone.length}/10 entered)`);
+  } else if (!/^[6-9]\d{9}$/.test(phone)) {
+    setError(phoneInput, '#order-phone-error', 'Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9');
+  }
+
+  let finalLocality = '';
+  let address = '';
+  let pincode = '';
+
+  if (orderType === 'delivery') {
+    address = addressInput ? addressInput.value.trim() : '';
+    if (!address || address.length < 5) {
+      setError(addressInput, '#order-address-error', 'Please enter your building / street address in Hyderabad');
+    }
+
+    const selectedLocality = localitySelect ? localitySelect.value : '';
+    if (!selectedLocality) {
+      setError(localitySelect, '#order-locality-error', 'Please choose your area in Hyderabad');
+    } else if (selectedLocality === 'Other') {
+      const otherLoc = otherLocalityInput ? otherLocalityInput.value.trim() : '';
+      if (!otherLoc) {
+        setError(otherLocalityInput, '#order-other-locality-error', 'Please specify your area in Hyderabad');
+      } else {
+        finalLocality = otherLoc;
+      }
+    } else {
+      finalLocality = selectedLocality;
+    }
+
+    pincode = pincodeInput ? pincodeInput.value.trim() : '';
+    if (!pincode || !/^5\d{5}$/.test(pincode)) {
+      setError(pincodeInput, '#order-pincode-error', 'Please enter a valid Hyderabad PIN code starting with 500 (e.g. 500033)');
+    }
+  }
+
+  if (hasError) {
+    firstInvalid?.focus();
+    return;
+  }
+
+  const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const orderId = `#WFL-HYD-${Math.floor(1000 + Math.random() * 9000)}`;
+  const instructions = instructionsInput ? instructionsInput.value.trim() : '';
+  const fullAddress = orderType === 'delivery' 
+    ? `${address}, ${finalLocality}, Hyderabad - ${pincode}` 
+    : 'Store Pickup (Jubilee Hills, Hyderabad)';
+
+  const orderRecord = {
+    id: orderId,
+    createdAt: new Date().toISOString(),
+    customerName: name,
+    customerPhone: phone,
+    orderType,
+    address: fullAddress,
+    city: 'Hyderabad',
+    pincode: orderType === 'delivery' ? pincode : '500033',
+    instructions,
+    paymentMethod,
+    items: items.map((item) => ({ id: item.product.id, name: item.product.name, price: item.product.price, quantity: item.quantity })),
+    total,
+    status: 'Confirmed'
+  };
+
+  // Persist customer info for next time
+  saveStorage(STORAGE_KEYS.customer, {
+    name,
+    phone,
+    address: orderType === 'delivery' ? address : '',
+    locality: orderType === 'delivery' ? finalLocality : '',
+    pincode: orderType === 'delivery' ? pincode : ''
+  });
+
+  // Persist order in store orders list
+  const existingOrders = readStorage(STORAGE_KEYS.orders, []);
+  existingOrders.unshift(orderRecord);
+  saveStorage(STORAGE_KEYS.orders, existingOrders);
+
+  // Format WhatsApp message
+  const itemsText = items.map((item) => `• ${item.quantity} × ${item.product.name} (₹${item.product.price * item.quantity})`).join('\n');
+  const waMessage = 
+`*🧇 New Order from It's Waffle!*
+*Order ID:* ${orderId}
+
+*Customer:* ${name}
+*Phone:* +91 ${phone}
+*Fulfillment:* ${orderType === 'delivery' ? '🛵 Home Delivery (Hyderabad Only)' : '🛍️ Store Takeaway (Jubilee Hills)'}
+${orderType === 'delivery' ? `*Address (Hyderabad):*\n${fullAddress}` : `*Pickup Outlet:* Jubilee Hills, Hyderabad`}
+${instructions ? `*Special Note:* ${instructions}\n` : ''}
+*Order Items:*
+${itemsText}
+
+*Subtotal:* ${currency.format(total)}
+*Delivery (Hyderabad):* FREE
+*Total to Pay:* ${currency.format(total)}
+*Payment Method:* ${paymentMethod}
+
+_Please bake my order fresh! Thank you._`;
+
+  const shopPhoneDigits = (SHOP.whatsapp || SHOP.phoneLink || '917032554637').replace(/\D/g, '');
+  const waUrl = `https://wa.me/${shopPhoneDigits}?text=${encodeURIComponent(waMessage)}`;
+
+  const successWaBtn = document.querySelector('#success-whatsapp-btn');
+  if (successWaBtn) {
+    successWaBtn.href = waUrl;
+  }
+
+  // Populate Success view
+  const successOrderIdEl = document.querySelector('#success-order-id');
+  const successCustomerEl = document.querySelector('#success-customer-details');
+  const successPaymentEl = document.querySelector('#success-payment-method');
+  const successAmountEl = document.querySelector('#success-amount');
+
+  if (successOrderIdEl) successOrderIdEl.textContent = orderId;
+  if (successCustomerEl) successCustomerEl.innerHTML = `<strong>${escapeHTML(name)}</strong> (+91 ${escapeHTML(phone)})<br><small>${escapeHTML(fullAddress)}</small>`;
+  if (successPaymentEl) successPaymentEl.textContent = paymentMethod;
+  if (successAmountEl) successAmountEl.textContent = currency.format(total);
+
+  // Clear cart
+  cart = {};
+  saveStorage(STORAGE_KEYS.cart, cart);
+  renderCart();
+
+  // Switch to success view
+  showCartView('success');
+
+  // If clicked WhatsApp button, open it
+  if (viaWhatsApp) {
+    window.open(waUrl, '_blank');
+  }
+}
+
+function setupCheckoutFormListeners() {
+  const form = document.querySelector('#checkout-order-form');
+  if (!form) return;
+
+  // Order type change (Delivery vs Pickup)
+  form.querySelectorAll('input[name="orderType"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const isDelivery = radio.value === 'delivery';
+      document.querySelector('#type-opt-delivery')?.classList.toggle('is-active', isDelivery);
+      document.querySelector('#type-opt-pickup')?.classList.toggle('is-active', !isDelivery);
+      const deliverySection = document.querySelector('#delivery-address-section');
+      const pickupSection = document.querySelector('#pickup-info-section');
+      if (deliverySection) deliverySection.hidden = !isDelivery;
+      if (pickupSection) pickupSection.hidden = isDelivery;
+    });
+  });
+
+  // Locality change (show Other field if Other selected)
+  document.querySelector('#order-locality')?.addEventListener('change', (event) => {
+    const isOther = event.target.value === 'Other';
+    const otherWrap = document.querySelector('#other-locality-wrap');
+    if (otherWrap) otherWrap.hidden = !isOther;
+    if (isOther) document.querySelector('#order-other-locality')?.focus();
+  });
+
+  // Payment method options
+  form.querySelectorAll('input[name="paymentMethod"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      form.querySelectorAll('.payment-option').forEach((opt) => {
+        const input = opt.querySelector('input');
+        opt.classList.toggle('is-active', input?.checked || false);
+      });
+    });
+  });
+
+  // Strict 10-digit mobile number input filter & validation
+  const phoneInput = form.querySelector('#order-phone');
+  if (phoneInput) {
+    phoneInput.addEventListener('input', () => {
+      // Retain only numeric digits and cap strictly to 10
+      const digits = phoneInput.value.replace(/\D/g, '').slice(0, 10);
+      phoneInput.value = digits;
+
+      const phoneError = document.querySelector('#order-phone-error');
+      if (digits.length > 0 && digits.length < 10) {
+        if (phoneError) phoneError.textContent = `Must be 10 digits (${digits.length}/10 entered)`;
+        phoneInput.setAttribute('aria-invalid', 'true');
+      } else if (digits.length === 10 && !/^[6-9]/.test(digits)) {
+        if (phoneError) phoneError.textContent = 'Mobile number must start with 6, 7, 8, or 9';
+        phoneInput.setAttribute('aria-invalid', 'true');
+      } else if (phoneError) {
+        phoneError.textContent = '';
+        phoneInput.removeAttribute('aria-invalid');
+      }
+    });
+
+    phoneInput.addEventListener('blur', () => {
+      const digits = phoneInput.value.replace(/\D/g, '');
+      const phoneError = document.querySelector('#order-phone-error');
+      if (digits.length > 0 && digits.length !== 10) {
+        if (phoneError) phoneError.textContent = `Mobile number must be exactly 10 digits (${digits.length}/10 entered)`;
+        phoneInput.setAttribute('aria-invalid', 'true');
+      }
+    });
+  }
+
+  // Real-time error clearance on input
+  form.querySelectorAll('input, select, textarea').forEach((input) => {
+    input.addEventListener('input', () => {
+      if (input.getAttribute('aria-invalid') === 'true') {
+        input.removeAttribute('aria-invalid');
+        const errEl = document.querySelector(`#${input.id}-error`);
+        if (errEl) errEl.textContent = '';
+      }
+    });
+  });
+
+  // Form submit
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    processOrder({ viaWhatsApp: false });
+  });
+
+  // WhatsApp order button
+  document.querySelector('#checkout-whatsapp-btn')?.addEventListener('click', () => {
+    processOrder({ viaWhatsApp: true });
+  });
+
+  // Back to bag button
+  document.querySelector('#checkout-back-button')?.addEventListener('click', () => {
+    showCartView('bag');
+  });
+
+  // Close checkout button
+  document.querySelector('#checkout-close')?.addEventListener('click', closeCart);
+
+  // Success screen actions
+  document.querySelector('#success-close')?.addEventListener('click', closeCart);
+  document.querySelector('#success-continue-btn')?.addEventListener('click', closeCart);
 }
 
 function addToCart(id) {
@@ -291,7 +657,8 @@ function openCart() {
   previousFocus = document.activeElement;
   shell.hidden = false;
   document.body.classList.add('drawer-open');
-  document.querySelector('#cart-close').focus();
+  showCartView('bag');
+  document.querySelector('#cart-close')?.focus();
 }
 
 function closeCart() {
@@ -299,6 +666,9 @@ function closeCart() {
   if (shell.hidden) return;
   shell.hidden = true;
   document.body.classList.remove('drawer-open');
+  window.setTimeout(() => {
+    showCartView('bag');
+  }, 280);
   if (previousFocus instanceof HTMLElement) previousFocus.focus();
 }
 
@@ -542,7 +912,8 @@ const ADMIN_SECTIONS = {
   menu: { label: 'Menu items', collection: () => MENU },
   features: { label: 'Why Us cards', collection: () => FEATURES },
   reviews: { label: 'Reviews', collection: () => REVIEWS },
-  shop: { label: 'Business details', collection: () => [SHOP] }
+  shop: { label: 'Business details', collection: () => [SHOP] },
+  orders: { label: 'Customer Orders (Hyderabad)', collection: () => readStorage(STORAGE_KEYS.orders, []) }
 };
 let adminSection = 'menu';
 let adminEditingId = null;
@@ -550,6 +921,72 @@ let adminEditingId = null;
 function adminFormFields(record = {}) {
   const field = (name, label, type = 'text', value = '', attributes = '') => `<label class="admin-field">${label}<input name="${name}" type="${type}" value="${escapeHTML(value)}" ${attributes}></label>`;
   const area = (name, label, value = '', attributes = '') => `<label class="admin-field admin-field-wide">${label}<textarea name="${name}" rows="3" ${attributes}>${escapeHTML(value)}</textarea></label>`;
+
+  if (adminSection === 'orders') {
+    if (!record || !record.id) {
+      return '<div class="admin-order-inspector"><p class="admin-empty-notice" style="padding:2rem 1rem; text-align:center; opacity:0.75;">Select an order from the list on the left to view customer & delivery details.</p></div>';
+    }
+    const dateStr = record.createdAt ? new Date(record.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Recently';
+    const itemsHtml = (record.items || []).map((it) => `
+      <div class="admin-order-item-row" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+        <span><strong>${it.quantity}×</strong> ${escapeHTML(it.name)}</span>
+        <strong>${currency.format(it.price * it.quantity)}</strong>
+      </div>
+    `).join('');
+
+    return `
+      <div class="admin-order-inspector" style="width:100%; display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.12);">
+          <div>
+            <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; opacity:0.7;">Order Reference</span>
+            <h3 style="margin:2px 0 0; font-size:1.3rem;">${escapeHTML(record.id)}</h3>
+            <span style="font-size:0.8rem; opacity:0.65;">Placed: ${escapeHTML(dateStr)}</span>
+          </div>
+          <span style="font-size:0.82rem; font-weight:700; padding:6px 14px; border-radius:999px; background:${record.orderType === 'delivery' ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)'}; color:${record.orderType === 'delivery' ? '#140b07' : 'inherit'};">
+            ${record.orderType === 'delivery' ? '🛵 Hyderabad Delivery' : '🛍️ Jubilee Hills Pickup'}
+          </span>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px;">
+          <h4 style="margin:0 0 8px; font-size:0.95rem; color:var(--color-primary);">Customer Contact</h4>
+          <p style="margin:4px 0;"><strong>Name:</strong> ${escapeHTML(record.customerName || 'Customer')}</p>
+          <p style="margin:4px 0;">
+            <strong>Phone:</strong> <a href="tel:${escapeHTML(record.customerPhone)}" style="color:var(--color-primary); font-weight:600;">+91 ${escapeHTML(record.customerPhone)}</a>
+            &nbsp;·&nbsp;
+            <a href="https://wa.me/91${escapeHTML(record.customerPhone)}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:4px; color:#25d366; font-weight:600; text-decoration:none;">WhatsApp Customer ↗</a>
+          </p>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px;">
+          <h4 style="margin:0 0 8px; font-size:0.95rem; color:var(--color-primary);">${record.orderType === 'delivery' ? '📍 Hyderabad Delivery Address' : '🏬 Store Pickup'}</h4>
+          <p style="margin:4px 0; font-size:0.95rem; line-height:1.4;">${escapeHTML(record.address || 'Jubilee Hills, Hyderabad')}</p>
+          ${record.instructions ? `<p style="margin:8px 0 0; padding-top:8px; border-top:1px dashed rgba(255,255,255,0.1); font-size:0.88rem;"><strong>Note:</strong> <em>${escapeHTML(record.instructions)}</em></p>` : ''}
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px;">
+          <h4 style="margin:0 0 10px; font-size:0.95rem; color:var(--color-primary);">Ordered Waffles</h4>
+          <div style="margin-bottom:12px;">
+            ${itemsHtml}
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:4px;">
+            <span>Subtotal</span>
+            <span>${currency.format(record.total)}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
+            <span>Hyderabad Delivery</span>
+            <span style="color:#25d366; font-weight:700;">FREE</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:700; padding-top:8px; border-top:1px solid rgba(255,255,255,0.15);">
+            <span>Total</span>
+            <span style="color:var(--color-primary);">${currency.format(record.total)}</span>
+          </div>
+          <div style="margin-top:10px; font-size:0.85rem; opacity:0.85;">
+            <strong>Payment:</strong> ${escapeHTML(record.paymentMethod || 'UPI on Delivery')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   if (adminSection === 'menu') {
     const categories = [...new Set(['Classic', 'Chocolate', 'Fruit', 'Ice-cream', 'Drinks', record.category].filter(Boolean))];
@@ -592,14 +1029,21 @@ function renderAdmin() {
   const section = ADMIN_SECTIONS[adminSection];
   const records = section.collection();
   const editing = records.find((record) => record.id === adminEditingId) || (adminSection === 'shop' ? SHOP : null);
+
+  const ordersCountEl = document.querySelector('#admin-orders-count');
+  if (ordersCountEl) {
+    ordersCountEl.textContent = readStorage(STORAGE_KEYS.orders, []).length;
+  }
+
   document.querySelectorAll('[data-admin-section]').forEach((button) => {
     const active = button.dataset.adminSection === adminSection;
     button.classList.toggle('is-active', active);
     button.setAttribute('aria-selected', String(active));
   });
   document.querySelector('#admin-section-title').textContent = section.label;
-  document.querySelector('#admin-add').hidden = adminSection === 'shop';
+  document.querySelector('#admin-add').hidden = adminSection === 'shop' || adminSection === 'orders';
   document.querySelector('#admin-delete').hidden = !editing || adminSection === 'shop';
+  document.querySelector('#admin-save').hidden = adminSection === 'orders';
   document.querySelector('#admin-fields').innerHTML = adminFormFields(editing || {});
   const imageInput = document.querySelector('#admin-product-image');
   imageInput?.addEventListener('change', () => {
@@ -618,6 +1062,19 @@ function renderAdmin() {
     ? `<button class="admin-record is-selected" type="button"><strong>${escapeHTML(SHOP.city)} shop</strong><span>${escapeHTML(SHOP.address)}</span></button>`
     : records.map((record) => {
       const id = escapeHTML(record.id);
+      if (adminSection === 'orders') {
+        const timeStr = record.createdAt ? new Date(record.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+        return `<button class="admin-record${record.id === adminEditingId ? ' is-selected' : ''}" type="button" data-record-id="${id}">
+          <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:8px;">
+            <strong>${id}</strong>
+            <span class="badge" style="font-size:0.72rem; padding:2px 8px; border-radius:999px; background:${record.orderType === 'delivery' ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)'}; color:${record.orderType === 'delivery' ? '#140b07' : 'inherit'}; font-weight:700;">${record.orderType === 'delivery' ? 'Hyd Delivery' : 'Pickup'}</span>
+          </div>
+          <span style="display:flex; justify-content:space-between; margin-top:4px;">
+            <span>${escapeHTML(record.customerName || 'Customer')} · ${currency.format(record.total)}</span>
+            <small style="opacity:0.7;">${timeStr}</small>
+          </span>
+        </button>`;
+      }
       const title = adminSection === 'menu' ? record.name : adminSection === 'features' ? record.title : record.author;
       const detail = adminSection === 'menu' ? `${record.category} · ${currency.format(record.price)}` : adminSection === 'features' ? record.description : record.quote;
       return `<button class="admin-record${record.id === adminEditingId ? ' is-selected' : ''}" type="button" data-record-id="${id}"><strong>${escapeHTML(title)}</strong><span>${escapeHTML(detail)}</span></button>`;
@@ -714,6 +1171,17 @@ function setupAdmin() {
   });
   document.querySelector('#admin-delete').addEventListener('click', () => {
     if (!adminEditingId || adminSection === 'shop') return;
+    if (adminSection === 'orders') {
+      const orders = readStorage(STORAGE_KEYS.orders, []);
+      const index = orders.findIndex((item) => item.id === adminEditingId);
+      if (index < 0) return;
+      if (!window.confirm('Delete this customer order?')) return;
+      orders.splice(index, 1);
+      saveStorage(STORAGE_KEYS.orders, orders);
+      adminEditingId = orders[0]?.id || null;
+      renderAdmin();
+      return;
+    }
     const records = adminSection === 'menu' ? MENU : adminSection === 'features' ? FEATURES : REVIEWS;
     const index = records.findIndex((item) => item.id === adminEditingId);
     if (index < 0) return;
@@ -898,6 +1366,7 @@ function initialize() {
   setupContactForm();
   setupNewsletter();
   setupAdmin();
+  setupCheckoutFormListeners();
   const currentYear = document.querySelector('#current-year');
   if (currentYear) currentYear.textContent = new Date().getFullYear();
 
@@ -938,12 +1407,7 @@ function initialize() {
     }
   });
   document.querySelector('#checkout-button')?.addEventListener('click', () => {
-    const order = getCartItems().map(({ product, quantity }) => `${quantity} × ${product.name} (${currency.format(product.price * quantity)})`).join('\n');
-    if (!order) return;
-    const total = getCartItems().reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-    const subject = encodeURIComponent("I'd love to order from It's Waffle");
-    const body = encodeURIComponent(`Hello! I'd like to place this order:\n\n${order}\n\nSubtotal: ${currency.format(total)}\n\nMy name: `);
-    window.location.href = `mailto:${SHOP.email}?subject=${subject}&body=${body}`;
+    openCheckoutForm();
   });
   document.querySelector('#theme-toggle')?.addEventListener('click', () => {
     setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');

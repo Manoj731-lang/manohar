@@ -79,7 +79,261 @@
 
   <div class="drawer-shell" id="drawer-shell" hidden>
     <button class="drawer-backdrop" id="drawer-backdrop" type="button" aria-label="Close cart"></button>
-    <aside class="cart-drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" tabindex="-1"><div class="cart-drawer-header"><div><p class="eyebrow">The good stuff</p><h2 id="cart-title">Your bag <span aria-hidden="true">♥</span></h2></div><button class="round-button cart-close" id="cart-close" type="button" aria-label="Close cart">×</button></div><div class="cart-items" id="cart-items" aria-live="polite"></div><div class="cart-empty" id="cart-empty"><span aria-hidden="true">♡</span><h3>Room for something lovely.</h3><p>Your next favorite is waiting in the menu.</p><button class="text-link cart-browse" id="cart-browse" type="button">Browse the menu <span aria-hidden="true">→</span></button></div><div class="cart-summary" id="cart-summary"><div class="cart-subtotal"><span>Subtotal</span><strong id="cart-subtotal">₹0</strong></div><p>Made fresh after you order. Tax included.</p><button class="button button-primary checkout-button" id="checkout-button" type="button">Let's make it official <span aria-hidden="true">→</span></button><small class="checkout-note">Checkout is a demo. Give us a call to place your order.</small></div></aside>
+    <aside class="cart-drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" tabindex="-1">
+      <!-- VIEW 1: CART BAG -->
+      <div class="cart-view" id="cart-view-bag">
+        <div class="cart-drawer-header">
+          <div><p class="eyebrow">The good stuff</p><h2 id="cart-title">Your bag <span aria-hidden="true">♥</span></h2></div>
+          <button class="round-button cart-close" id="cart-close" type="button" aria-label="Close cart">×</button>
+        </div>
+        <div class="cart-items" id="cart-items" aria-live="polite"></div>
+        <div class="cart-empty" id="cart-empty">
+          <span aria-hidden="true">♡</span>
+          <h3>Room for something lovely.</h3>
+          <p>Your next favorite is waiting in the menu.</p>
+          <button class="text-link cart-browse" id="cart-browse" type="button">Browse the menu <span aria-hidden="true">→</span></button>
+        </div>
+        <div class="cart-summary" id="cart-summary">
+          <div class="cart-subtotal"><span>Subtotal</span><strong id="cart-subtotal">₹0</strong></div>
+          <p>Made fresh after you order. Tax included.</p>
+          <button class="button button-primary checkout-button" id="checkout-button" type="button">Let's make it official <span aria-hidden="true">→</span></button>
+          <div class="checkout-delivery-badge" id="checkout-delivery-badge">
+            <span class="delivery-badge-icon" aria-hidden="true">📍</span>
+            <span>Delivery available in <strong>Hyderabad only</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: CHECKOUT / DELIVERY DETAILS FORM -->
+      <div class="cart-view" id="cart-view-checkout" hidden>
+        <div class="cart-drawer-header checkout-drawer-header">
+          <button class="checkout-back-button" id="checkout-back-button" type="button" aria-label="Back to your bag">
+            <span aria-hidden="true">←</span> Back to bag
+          </button>
+          <button class="round-button cart-close" id="checkout-close" type="button" aria-label="Close checkout">×</button>
+        </div>
+        <div class="checkout-scroll-area">
+          <div class="checkout-heading-box">
+            <p class="eyebrow">Almost official</p>
+            <h2>Delivery Details</h2>
+          </div>
+
+          <!-- Hyderabad Exclusive Notice Banner -->
+          <div class="hyderabad-notice-banner" role="note">
+            <div class="hyderabad-notice-icon">🛵</div>
+            <div class="hyderabad-notice-content">
+              <strong>Delivery Available in Hyderabad Only</strong>
+              <p>Fresh waffles baked &amp; delivered hot across Hyderabad city limits.</p>
+            </div>
+          </div>
+
+          <form class="checkout-order-form" id="checkout-order-form" novalidate>
+            <!-- Fulfillment Type -->
+            <div class="order-type-selector" role="radiogroup" aria-label="Order fulfillment method">
+              <label class="order-type-option is-active" id="type-opt-delivery">
+                <input type="radio" name="orderType" value="delivery" checked>
+                <span class="order-type-label">🛵 Home Delivery</span>
+                <small>To your door in Hyderabad</small>
+              </label>
+              <label class="order-type-option" id="type-opt-pickup">
+                <input type="radio" name="orderType" value="pickup">
+                <span class="order-type-label">🛍️ Takeaway / Pickup</span>
+                <small>Jubilee Hills outlet</small>
+              </label>
+            </div>
+
+            <!-- Customer Details -->
+            <div class="checkout-form-section">
+              <h3 class="form-section-title">Customer Information</h3>
+              <div class="form-field">
+                <label for="order-name">Your Full Name <span class="required-star">*</span></label>
+                <input type="text" id="order-name" name="name" required placeholder="e.g. Manohar Sharma" autocomplete="name">
+                <span class="field-error" id="order-name-error"></span>
+              </div>
+              <div class="form-field">
+                <label for="order-phone">Mobile / WhatsApp Number <span class="required-star">*</span></label>
+                <div class="phone-input-wrap">
+                  <span class="phone-prefix">+91</span>
+                  <input type="tel" id="order-phone" name="phone" required placeholder="9876543210" maxlength="10" minlength="10" pattern="[6-9][0-9]{9}" inputmode="numeric" autocomplete="tel" title="10-digit mobile number starting with 6, 7, 8, or 9">
+                </div>
+                <span class="field-error" id="order-phone-error"></span>
+              </div>
+            </div>
+
+            <!-- Delivery Address Section -->
+            <div class="checkout-form-section" id="delivery-address-section">
+              <h3 class="form-section-title">Hyderabad Delivery Address</h3>
+              
+              <div class="form-field">
+                <label for="order-address">House / Flat / Street / Landmark <span class="required-star">*</span></label>
+                <input type="text" id="order-address" name="address" required placeholder="Flat 402, Sunshine Apts, Road No. 10" autocomplete="street-address">
+                <span class="field-error" id="order-address-error"></span>
+              </div>
+
+              <div class="form-field">
+                <label for="order-locality">Area / Locality in Hyderabad <span class="required-star">*</span></label>
+                <select id="order-locality" name="locality" required>
+                  <option value="" disabled selected>Select your Hyderabad locality</option>
+                  <option value="Jubilee Hills">Jubilee Hills</option>
+                  <option value="Banjara Hills">Banjara Hills</option>
+                  <option value="Madhapur / HITEC City">Madhapur / HITEC City</option>
+                  <option value="Gachibowli / Financial District">Gachibowli / Financial District</option>
+                  <option value="Kondapur">Kondapur</option>
+                  <option value="Kukatpally / KPHB">Kukatpally / KPHB</option>
+                  <option value="Begumpet">Begumpet</option>
+                  <option value="Ameerpet / SR Nagar">Ameerpet / SR Nagar</option>
+                  <option value="Somajiguda / Panjagutta">Somajiguda / Panjagutta</option>
+                  <option value="Secunderabad">Secunderabad</option>
+                  <option value="Himayatnagar">Himayatnagar</option>
+                  <option value="Tolichowki / Mehdipatnam">Tolichowki / Mehdipatnam</option>
+                  <option value="Manikonda / Puppalaguda">Manikonda / Puppalaguda</option>
+                  <option value="Miyapur / Chandanagar">Miyapur / Chandanagar</option>
+                  <option value="Other">Other Area in Hyderabad...</option>
+                </select>
+                <span class="field-error" id="order-locality-error"></span>
+              </div>
+
+              <div class="form-field" id="other-locality-wrap" hidden>
+                <label for="order-other-locality">Specify Hyderabad Area <span class="required-star">*</span></label>
+                <input type="text" id="order-other-locality" name="otherLocality" placeholder="Enter your area in Hyderabad">
+                <span class="field-error" id="order-other-locality-error"></span>
+              </div>
+
+              <div class="checkout-form-row">
+                <div class="form-field">
+                  <label for="order-city">City</label>
+                  <div class="locked-city-field">
+                    <input type="text" id="order-city" name="city" value="Hyderabad" readonly>
+                    <span class="locked-city-badge">📍 Hyderabad only</span>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <label for="order-pincode">PIN Code <span class="required-star">*</span></label>
+                  <input type="text" id="order-pincode" name="pincode" required placeholder="500033" maxlength="6" inputmode="numeric">
+                  <span class="field-error" id="order-pincode-error"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Store Pickup Info Section -->
+            <div class="checkout-form-section pickup-info-section" id="pickup-info-section" hidden>
+              <h3 class="form-section-title">Pickup Outlet Location</h3>
+              <div class="pickup-card">
+                <span class="pickup-card-icon">🏪</span>
+                <div>
+                  <strong>It's Waffle — Jubilee Hills</strong>
+                  <p>Road No. 36, Jubilee Hills, Hyderabad</p>
+                  <small>Fresh off the iron! Ready in approx. 15–20 mins</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Special Instructions -->
+            <div class="checkout-form-section">
+              <div class="form-field">
+                <label for="order-instructions">Special Instructions / Preferences <small>(Optional)</small></label>
+                <textarea id="order-instructions" name="instructions" rows="2" placeholder="e.g. Less sweet, extra chocolate syrup, ring doorbell..."></textarea>
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="checkout-form-section">
+              <h3 class="form-section-title">Payment Method</h3>
+              <div class="payment-methods" role="radiogroup">
+                <label class="payment-option is-active" id="pay-opt-upi">
+                  <input type="radio" name="paymentMethod" value="UPI on Delivery" checked>
+                  <span class="payment-title">📱 UPI on Delivery</span>
+                  <small>GPay, PhonePe, Paytm, or any QR code on delivery</small>
+                </label>
+                <label class="payment-option" id="pay-opt-cod">
+                  <input type="radio" name="paymentMethod" value="Cash on Delivery">
+                  <span class="payment-title">💵 Cash on Delivery</span>
+                  <small>Pay cash to the delivery partner</small>
+                </label>
+              </div>
+            </div>
+
+            <!-- Order Items Mini Breakdown -->
+            <div class="checkout-mini-summary">
+              <div class="mini-summary-header">
+                <span>Order Summary</span>
+                <span id="checkout-item-count">0 items</span>
+              </div>
+              <div class="mini-summary-list" id="checkout-summary-list"></div>
+              <div class="mini-summary-breakdown">
+                <div class="summary-line"><span>Subtotal</span><span id="checkout-subtotal">₹0</span></div>
+                <div class="summary-line"><span>Delivery (Hyderabad)</span><span class="free-delivery-tag">FREE</span></div>
+                <div class="summary-line summary-total"><span>Total to Pay</span><strong id="checkout-total">₹0</strong></div>
+              </div>
+            </div>
+
+            <!-- Submit Actions -->
+            <div class="checkout-actions">
+              <button type="submit" class="button button-primary checkout-confirm-btn" id="checkout-confirm-btn">
+                <span>Confirm Order (<span id="btn-total-price">₹0</span>)</span> <span aria-hidden="true">→</span>
+              </button>
+              <button type="button" class="button button-whatsapp checkout-whatsapp-btn" id="checkout-whatsapp-btn">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19.01L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.36 7.34 9.09 7.4 8.87 7.65C8.65 7.89 8.02 8.48 8.02 9.69C8.02 10.9 8.91 12.06 9.03 12.23C9.15 12.4 10.74 14.86 13.18 15.92C15.21 16.8 15.62 16.63 16.07 16.59C16.52 16.55 17.52 16 17.73 15.42C17.94 14.84 17.88 14.24C17.82 14.13 17.65 14.07 17.4 13.95C17.15 13.82 15.91 13.21 15.68 13.13C15.45 13.04 15.28 13 15.11 13.25C14.95 13.5 14.47 14.07 14.32 14.24C14.17 14.41 14.03 14.43 13.78 14.31C13.53 14.18 12.48 13.84 11.23 12.73C10.26 11.87 9.61 10.8 9.48 10.58C9.36 10.36 9.47 10.24 9.59 10.12C9.7 10.01 9.84 9.83 9.97 9.69C10.1 9.55 10.14 9.44 10.22 9.28C10.3 9.11 10.26 8.97 10.2 8.85C10.14 8.72 9.65 7.51 9.53 7.34Z"/></svg>
+                <span>Order via WhatsApp</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- VIEW 3: ORDER SUCCESS CONFIRMATION -->
+      <div class="cart-view" id="cart-view-success" hidden>
+        <div class="cart-drawer-header">
+          <div><p class="eyebrow">Order Placed!</p><h2 id="success-title">It's Official! <span aria-hidden="true">🎉</span></h2></div>
+          <button class="round-button cart-close" id="success-close" type="button" aria-label="Close drawer">×</button>
+        </div>
+        <div class="checkout-success-body">
+          <div class="success-animation-circle">
+            <span class="success-check-icon">✓</span>
+          </div>
+          <h3>Waffles on the way!</h3>
+          <p class="success-lead">We've received your order and our chefs are heating up the waffle iron right now.</p>
+          
+          <div class="success-card">
+            <div class="success-card-row">
+              <span>Order ID</span>
+              <strong id="success-order-id">#WFL-HYD-0000</strong>
+            </div>
+            <div class="success-card-row">
+              <span>Delivery City</span>
+              <strong>📍 Hyderabad</strong>
+            </div>
+            <div class="success-card-row">
+              <span>Estimated Delivery</span>
+              <strong>⏱ 30–45 mins</strong>
+            </div>
+            <div class="success-card-row">
+              <span>Delivery To</span>
+              <span id="success-customer-details" class="success-multiline">-</span>
+            </div>
+            <div class="success-card-row">
+              <span>Payment Mode</span>
+              <span id="success-payment-method">-</span>
+            </div>
+            <div class="success-card-row success-total-row">
+              <span>Amount to Pay</span>
+              <strong id="success-amount">₹0</strong>
+            </div>
+          </div>
+
+          <div class="success-actions">
+            <a class="button button-whatsapp" id="success-whatsapp-btn" href="#" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19.01L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.36 7.34 9.09 7.4 8.87 7.65C8.65 7.89 8.02 8.48 8.02 9.69C8.02 10.9 8.91 12.06 9.03 12.23C9.15 12.4 10.74 14.86 13.18 15.92C15.21 16.8 15.62 16.63 16.07 16.59C16.52 16.55 17.52 16 17.73 15.42C17.94 14.84 17.88 14.24C17.82 14.13 17.65 14.07 17.4 13.95C17.15 13.82 15.91 13.21 15.68 13.13C15.45 13.04 15.28 13 15.11 13.25C14.95 13.5 14.47 14.07 14.32 14.24C14.17 14.41 14.03 14.43 13.78 14.31C13.53 14.18 12.48 13.84 11.23 12.73C10.26 11.87 9.61 10.8 9.48 10.58C9.36 10.36 9.47 10.24 9.59 10.12C9.7 10.01 9.84 9.83 9.97 9.69C10.1 9.55 10.14 9.44 10.22 9.28C10.3 9.11 10.26 8.97 10.2 8.85C10.14 8.72 9.65 7.51 9.53 7.34Z"/></svg>
+              <span>Share / Track on WhatsApp</span>
+            </a>
+            <button class="button button-primary success-continue-btn" id="success-continue-btn" type="button">
+              Order More Waffles <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
   </div>
 
   <dialog class="lightbox" id="lightbox" aria-label="Photo viewer"><form method="dialog"><button class="round-button lightbox-close" aria-label="Close photo viewer">×</button></form><button class="round-button lightbox-arrow lightbox-prev" id="lightbox-prev" type="button" aria-label="Previous photo">←</button><figure><img id="lightbox-image" src="" alt=""><figcaption id="lightbox-caption"></figcaption></figure><button class="round-button lightbox-arrow lightbox-next" id="lightbox-next" type="button" aria-label="Next photo">→</button></dialog>
